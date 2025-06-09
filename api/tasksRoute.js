@@ -1,11 +1,11 @@
-import {verifyToken} from "./server.js";
 import express from "express";
+import { verifyToken } from "#auth";
+import { getTasks, getTaskById, createTask, updateTask, deleteTask } from "#db/queries/tasks";
+
 const router = express.Router();
 export default router;
 
-import { getTasks, getTaskById, createTask, updateTask, deleteTask } from "#db/queries/tasks";
-
-router.get("/", verifyToken, async(req, res)=>{
+router.get("/", async(req, res)=>{
     const tasks = await getTasks();
     return res.send(tasks);
 });
@@ -37,7 +37,7 @@ router.post("/", verifyToken, async (req, res)=>{
     res.status(201).send(task);
 });
 
-router.put("/:id", verifyToken, async (req, res)=>{
+router.put("/:id", async (req, res)=>{
     const id = req.params.id;
     if(!req.body){
         return res.status(400).send({error: "Missing req.body"});
@@ -57,11 +57,11 @@ router.put("/:id", verifyToken, async (req, res)=>{
         return res.status(404).send({error: "Task does not exist"});
     };
 
-    const updated = await updateTask({title, done, user_id});
+    const updated = await updateTask(id, {title, done, user_id});
     res.status(200).send(updated);
 });
 
-router.delete("/", verifyToken, async (req, res)=>{
+router.delete("/", async (req, res)=>{
     const id = req.params.id;
     if(!Number.isInteger(id) && id < 0){
         res.status(400).send({error: "Please send a valid task"});
@@ -72,8 +72,8 @@ router.delete("/", verifyToken, async (req, res)=>{
         return res.status(404).send({error: "Task not found"});
     };
 
-    const deletes = await deleteTask(id);
-    if(!deletes){
+    const deleted = await deleteTask(id);
+    if(!deleted){
         res.status(404).send({error: "Task does not exist"});
     };
     res.sendStatus(204);
