@@ -1,10 +1,11 @@
+import {verifyToken} from "./server.js";
 import express from "express";
 const router = express.Router();
 export default router;
 
 import { getTasks, getTaskById, createTask, updateTask, deleteTask } from "#db/queries/tasks";
 
-router.get("/", async(req, res)=>{
+router.get("/", verifyToken, async(req, res)=>{
     const tasks = await getTasks();
     return res.send(tasks);
 });
@@ -22,7 +23,7 @@ router.get("/:id", async(req,res)=>{
     res.send(task);
 });
 
-router.post("/", async (req, res)=>{
+router.post("/", verifyToken, async (req, res)=>{
     if(!req.body){
         return res.status(400).send({error: "Missing req.body"});
     };
@@ -36,7 +37,7 @@ router.post("/", async (req, res)=>{
     res.status(201).send(task);
 });
 
-router.put("/:id", async (req, res)=>{
+router.put("/:id", verifyToken, async (req, res)=>{
     const id = req.params.id;
     if(!req.body){
         return res.status(400).send({error: "Missing req.body"});
@@ -60,7 +61,7 @@ router.put("/:id", async (req, res)=>{
     res.status(200).send(updated);
 });
 
-router.delete("/", async (req, res)=>{
+router.delete("/", verifyToken, async (req, res)=>{
     const id = req.params.id;
     if(!Number.isInteger(id) && id < 0){
         res.status(400).send({error: "Please send a valid task"});
