@@ -11,12 +11,12 @@ router.get("/", async(req, res) => {
 
 router.get("/:id", async (req, res) => {
     const id = req.params.id;
-    if(!Number.isInteger(id) && id < 0){
+    if(isNaN(id) || id < 0){
         return res.status(400).send({error: "Please send a valid user"})
     };
 
     const user = await getUserById(id);
-    if(!recipe){
+    if(!user){
         return res.status(404).send({error: "User does not exist."});
     };
     res.send(user);
@@ -60,9 +60,9 @@ router.put("/:id", async (req, res) => {
     res.status(200).send(updated);
 });
 
-router.delete("/", async (req, res) => {
-    const id = req.params.id;
-    if(!Number.isInteger(id) && id < 0){
+router.delete("/:id", async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if(isNaN(id) || id < 0){
         res.status(400).send({error: "Please send a valid user"});
     };
 
